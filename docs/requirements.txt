@@ -1,0 +1,4 @@
+sphinx
+sphinx-material
+sphinxcontrib-mermaid
+myst-parser

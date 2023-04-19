@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/apinator/badge/?version=latest)](https://apinator.readthedocs.io/en/latest/?badge=latest)
+
 # Apinator
 
 A simple foundation for building great client-side REST API bindings.

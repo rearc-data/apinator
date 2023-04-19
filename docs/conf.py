@@ -9,7 +9,7 @@
 project = "APInator"
 copyright = "2023, Rearc Data"
 author = "Rearc Data"
-release = "0.0.2"
+release = "0.0.3"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

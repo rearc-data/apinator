@@ -20,6 +20,12 @@ tests = [
     "pytest-cov",
     "responses",
 ]
+dev = [
+    "sphinx",
+    "sphinx-material",
+    "sphinxcontrib-mermaid",
+    "myst-parser",
+]
 
 [project.urls]
 Home = "https://github.com/rearc-data/apinator"

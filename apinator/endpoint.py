@@ -15,7 +15,7 @@ M = TypeVar("M", bound=BaseModel)
 class EndpointDefinition(BaseModel, Generic[R, M]):
     name: Optional[str] = None
     url: Union[PathStr, str]
-    response_model: Optional[Type[R]]
+    response_model: Optional[Type[R]] = None
     body_model: Optional[Type[M]] = None
     method: Union[HttpMethod, str] = HttpMethod.GET
     arg_names: List[str] = ()

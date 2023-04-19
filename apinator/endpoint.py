@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from functools import partial
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
-from pydantic import BaseModel, PrivateAttr, validate_arguments
+from pydantic import BaseModel, validate_arguments
 from typing_extensions import Self
 
 from apinator.api import ApiBase
@@ -182,6 +183,7 @@ class EndpointAction(BaseModel, Generic[R, M]):
         )
 
 
+# TODO: This should probably be a metaclass? Like `pydantic.Field`, this is really more of a descriptor than a real object
 class EndpointGroup:
     """A quick, OOP approach to creating a group of related endpoints.
 
@@ -253,28 +255,21 @@ class EndpointGroup:
             return bound_group
 
 
-class BoundEndpointGroup(BaseModel):
-    api: ApiBase
-    group: EndpointGroup
-
-    _endpoints: Dict[str, Endpoint] = PrivateAttr(default_factory=dict)
-
-    class Config:
-        arbitrary_types_allowed = True
-        frozen = True
+class BoundEndpointGroup:
+    def __init__(self, api: ApiBase, group: EndpointGroup):
+        self._group = group
+        self._endpoints = {
+            action_name: action.create_endpoint(api, group.url, group.arg_names)
+            for action_name, action in group.actions.items()
+        }
 
     def __getattr__(self, item):
-        if item not in self._endpoints:
-            try:
-                action = self.group.actions[item]
-            except KeyError:
-                return getattr(super(), item)
-            else:
-                self._endpoints[item] = action.create_endpoint(
-                    self.api, self.group.url, self.group.arg_names
-                )
+        if item in self._endpoints:
+            return self._endpoints[item]
 
-        return self._endpoints[item]
+        # TODO: This is a mess
+        setattr(self, item, partial(getattr(type(self._group), item), self))
+        return getattr(self, item)
 
 
 class DeclarativeEndpoint(EndpointDefinition[R, M]):

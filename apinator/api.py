@@ -3,29 +3,30 @@ import logging
 from typing import Any, Generic, TypeVar
 
 import requests
-from pydantic import constr, validate_arguments
+from pydantic import StringConstraints, validate_arguments, validate_call
 from requests import Response
 
-from apinator.common import Request
+from apinator.common import Request, PathStr
+from typing_extensions import Annotated
 
 log = logging.getLogger(__name__)
 M = TypeVar("M")
 
 
 class ApiBase(Generic[M]):
-    @validate_arguments
+    @validate_call
     def __init__(
         self,
         *,
-        scheme: constr(regex=r"^http|https$") = "https",
-        host: constr(regex=r"^[a-zA-Z0-9.-]+$"),
-        path_prefix: constr(regex=r"\S*") = "",
+        host: Annotated[str, StringConstraints(pattern=r"^[a-zA-Z0-9.-]+$")],
+        scheme: Annotated[str, StringConstraints(pattern=r"^http|https$")] = "https",
+        path_prefix: Annotated[str, StringConstraints(pattern=r"\S*")] = "",
         append_trailing_slash: bool = False,
         urlencode_kwargs: dict = None,
     ):
         self.scheme = scheme
         self.host = host
-        self.path_prefix = path_prefix.strip("/")
+        self.path_prefix = PathStr(path_prefix)
         self.append_trailing_slash = append_trailing_slash
         self.urlencode_kwargs = urlencode_kwargs or {}
 

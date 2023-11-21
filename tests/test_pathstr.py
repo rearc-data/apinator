@@ -3,9 +3,9 @@ from apinator.common import PathStr
 
 def test_pathstr_common_operations():
     """Test basic operations on path strings."""
-    a = PathStr.parse_obj("a")
-    b = PathStr.parse_obj("b")
-    b_slash = PathStr.parse_obj("/b/")
+    a = PathStr.model_validate("a")
+    b = PathStr.model_validate("b")
+    b_slash = PathStr.model_validate("/b/")
 
     assert str(a) == "/a"
     assert str(b) == "/b"

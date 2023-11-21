@@ -9,13 +9,13 @@ authors = [{name = "Rearc Data", email = "data@rearc.io"}]
 dynamic = ["version", "description"]
 dependencies = [
     "typing_extensions>=4",
-    "pydantic>=1,<2",
+    "pydantic>2",
     "requests",
 ]
 requires-python = ">=3.7"
 
 [project.optional-dependencies]
-tests = [
+test = [
     "pytest",
     "pytest-cov",
     "responses",

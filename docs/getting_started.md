@@ -112,11 +112,11 @@ class MyApi(JsonApiBase):
     gizmo = EndpointGroup(
         url="/gizmo",
         actions=[
-            # GET /object -> MyGizmoList.parse_obj(response.json())
+            # GET /object -> MyGizmoList.model_validate(response.json())
             EndpointAction.list(MyGizmoList),
-            # GET /object/{id} -> MyGizmo.parse_obj(response.json())
+            # GET /object/{id} -> MyGizmo.model_validate(response.json())
             EndpointAction.retrieve(MyGizmo),
-            # MyGizmo.parse_obj(body).json() -> POST /object
+            # MyGizmo.model_validate(body).json() -> POST /object
             EndpointAction.create(MyGizmo),
         ]
     )
@@ -141,11 +141,11 @@ class GizmoGroup(EndpointGroup):
         super().__init__(
             url="/gizmo",
             actions=[
-                # GET /object -> MyGizmoList.parse_obj(response.json())
+                # GET /object -> MyGizmoList.model_validate(response.json())
                 EndpointAction.list(MyGizmoList),
-                # GET /object/{id} -> MyGizmo.parse_obj(response.json())
+                # GET /object/{id} -> MyGizmo.model_validate(response.json())
                 EndpointAction.retrieve(MyGizmo),
-                # MyGizmo.parse_obj(body).json() -> PUT /object
+                # MyGizmo.model_validate(body).json() -> PUT /object
                 EndpointAction.update(MyGizmo),
             ]
         )

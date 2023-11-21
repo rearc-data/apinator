@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import partial
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
-from pydantic import BaseModel, validate_arguments
+from pydantic import ConfigDict, BaseModel, validate_arguments, validate_call
 from typing_extensions import Self
 
 from apinator.api import ApiBase
@@ -21,18 +21,13 @@ class EndpointDefinition(BaseModel, Generic[R, M]):
     method: Union[HttpMethod, str] = HttpMethod.GET
     arg_names: List[str] = ()
     default_query: Dict[str, Optional[str]] = {}
-
-    class Config:
-        frozen = False
+    model_config = ConfigDict(frozen=False)
 
 
 class Endpoint(BaseModel, Generic[R, M]):
     defn: EndpointDefinition[R, M]
     api: ApiBase
-
-    class Config:
-        arbitrary_types_allowed = True
-        frozen = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)
 
     def __call__(self, *args, body: Optional[M] = None, **kwargs) -> R:
         if args:
@@ -68,21 +63,21 @@ class Endpoint(BaseModel, Generic[R, M]):
 
         if body is not None:
             if self.defn.body_model is not None:
-                body = self.defn.body_model.parse_obj(body).json()
+                body = self.defn.body_model.model_validate(body).json()
             request = request.with_options(body=body)
 
         response = self.api.request(request)
         if self.defn.response_model is None:
             return response
         else:
-            obj = self.defn.response_model.parse_obj(response)
+            obj = self.defn.response_model.model_validate(response)
             return obj
 
 
 class EndpointAction(BaseModel, Generic[R, M]):
     action_name: str
-    url: Union[PathStr, str] = PathStr(__root__="")
-    response_model: Optional[Type[R]]
+    url: Union[PathStr, str] = PathStr("")
+    response_model: Optional[Type[R]] = None
     body_model: Optional[Type[M]] = None
     method: Union[HttpMethod, str] = HttpMethod.GET
     arg_names: List[str] = ()
@@ -227,7 +222,7 @@ class EndpointGroup:
     This works best for REST APIs that follow common best practices, but can be customized where needed.
     """
 
-    @validate_arguments
+    @validate_call
     def __init__(
         self,
         url: Union[PathStr, str],
@@ -238,7 +233,7 @@ class EndpointGroup:
         self.name = None
 
         # Instance attributes
-        self.url = PathStr.parse_obj(url)
+        self.url = PathStr.model_validate(url)
         self.actions: Dict[str, EndpointAction] = {a.action_name: a for a in actions}
         self.arg_names = arg_names
 
@@ -276,7 +271,7 @@ class DeclarativeEndpoint(EndpointDefinition[R, M]):
     def _make_variant(self, **kwargs) -> Self:
         d = self.dict().copy()
         d.update(kwargs)
-        return self.parse_obj(d)
+        return self.model_validate(d)
 
     def make_head(self, **kwargs) -> Self:
         return self._make_variant(

@@ -3,41 +3,38 @@ from typing import Any, Dict, Optional, Union
 from urllib.parse import urlencode, urlunparse
 
 import requests
-from pydantic import BaseModel, Extra, root_validator
+from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic.root_model import RootModel
 
 
-class PathStr(BaseModel):
-    __root__: str = ""
+class PathStr(RootModel[str]):
+    # model_config = ConfigDict(frozen=True)
 
-    @root_validator
-    def clean_str(cls, values: Dict[str, Any]):
-        values["__root__"] = values["__root__"].strip("/")
-        return values
-
-    class Config:
-        frozen = True
+    @model_validator(mode="before")
+    @classmethod
+    def clean_str(cls, data: Any):
+        return str(data).strip("/")
 
     def __str__(self):
-        return f"/{self.__root__}"
+        return f"/{self.root}"
 
     def __bool__(self):
         return bool(str(self))
 
     def __truediv__(self, other):
-        other = PathStr.parse_obj(other)
-        return PathStr(__root__=f"{self.__root__}/{other.__root__}")
+        other = PathStr(other)
+        return PathStr(root=f"{self.root}/{other.root}")
 
     def __rtruediv__(self, other):
-        other = PathStr.parse_obj(other)
-        return PathStr(__root__=f"{other.__root__}/{self.__root__}")
+        other = PathStr(other)
+        return PathStr(root=f"{other.root}/{self.root}")
 
     def __getattr__(self, item):
-        return getattr(str(self.__root__), item)
+        return getattr(str(self.root), item)
 
 
 class StrictBaseModel(BaseModel):
-    class Config:
-        extra = Extra.forbid
+    model_config = ConfigDict(extra="forbid")
 
 
 class HttpScheme(enum.Enum):
@@ -57,7 +54,7 @@ class HttpMethod(enum.Enum):
 class Request(BaseModel):
     scheme: Optional[HttpScheme] = None
     host: Optional[str] = None
-    path: Union[PathStr, str] = PathStr(__root__="")
+    path: Union[PathStr, str] = PathStr(root="")
     method: Optional[HttpMethod] = None
     params: Optional[str] = None
     query: Dict[str, str] = {}

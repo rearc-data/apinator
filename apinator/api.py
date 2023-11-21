@@ -3,7 +3,7 @@ import logging
 from typing import Any, Generic, TypeVar
 
 import requests
-from pydantic import StringConstraints, validate_arguments, validate_call
+from pydantic import StringConstraints, validate_call
 from requests import Response
 
 from apinator.common import Request, PathStr

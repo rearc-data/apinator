@@ -128,7 +128,7 @@ def test_object_group(api):
     obj = SomeObject(n=5, s="lol")
     assert api.objects.create(body=obj) == {"success": True}
 
-    responses.get("https://www.example.com/object/5", json=obj.dict())
+    responses.get("https://www.example.com/object/5", json=obj.model_dump())
     result = api.objects.retrieve(5)
     assert result == obj
 

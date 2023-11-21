@@ -89,7 +89,7 @@ class Request(BaseModel):
         return urlencode(self.query, **self.urlencode_kwargs)
 
     def with_options(self, **kwargs):
-        new_request = self.copy()
+        new_request = self.model_copy()
 
         for key, value in kwargs.items():
             if hasattr(self, f"_modify_{key}"):

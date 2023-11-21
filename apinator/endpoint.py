@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import partial
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
-from pydantic import ConfigDict, BaseModel, validate_arguments, validate_call
+from pydantic import ConfigDict, BaseModel, validate_call
 from typing_extensions import Self
 
 from apinator.api import ApiBase
@@ -63,7 +63,7 @@ class Endpoint(BaseModel, Generic[R, M]):
 
         if body is not None:
             if self.defn.body_model is not None:
-                body = self.defn.body_model.model_validate(body).json()
+                body = self.defn.body_model.model_validate(body).model_dump_json()
             request = request.with_options(body=body)
 
         response = self.api.request(request)
@@ -269,7 +269,7 @@ class BoundEndpointGroup:
 
 class DeclarativeEndpoint(EndpointDefinition[R, M]):
     def _make_variant(self, **kwargs) -> Self:
-        d = self.dict().copy()
+        d = self.model_dump().copy()
         d.update(kwargs)
         return self.model_validate(d)
 

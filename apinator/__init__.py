@@ -1,6 +1,6 @@
 """Library for building type-checked bindings to external REST APIs"""
 
-__version__ = "0.0.3"
+__version__ = "0.1.0"
 
 from .api import ApiBase, JsonApiBase
 from .endpoint import DeclarativeEndpoint, EndpointAction, EndpointGroup
